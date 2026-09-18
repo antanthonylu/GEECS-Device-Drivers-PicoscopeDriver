@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
 
@@ -66,3 +68,18 @@ def test_unknown_variable_get() -> None:
 def test_trigger_settings_round_trip(device) -> None:
     device.try_set("Trigger Channel", "b")
     assert device.try_get("Trigger Channel") == ("B", None)
+
+
+def test_save_variable_writes_csv_and_records_path(device) -> None:
+    device.try_set("ChannelA Enabled", 1)
+    device.try_set("Acquire", 1)
+    error = device.try_set("Save", 1)
+    assert error is None
+    saved_path, _ = device.try_get("Last Save Path")
+    assert saved_path
+    assert Path(saved_path).exists()
+
+
+def test_save_variable_without_acquire_reports_error(device) -> None:
+    error = device.try_set("Save", 1)
+    assert error is not None

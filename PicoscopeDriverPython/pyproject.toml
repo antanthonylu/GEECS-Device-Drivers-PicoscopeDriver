@@ -9,6 +9,7 @@ dependencies = [
 
 [project.optional-dependencies]
 hardware = ["picosdk>=1.1"]
+viz = ["matplotlib>=3.7"]
 dev = ["pytest>=7.0", "pytest-asyncio>=0.23"]
 
 [project.scripts]
@@ -23,3 +24,9 @@ include = ["picoscope_driver*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+# Real-hardware tests are opt-in only: `PICOSCOPE_HW_TEST=1 pytest -m hardware`.
+# The default run (plain `pytest`) never touches a physical PicoScope.
+addopts = "-m 'not hardware'"
+markers = [
+    "hardware: needs a real PicoScope 3000A + PicoSDK (PICOSCOPE_HW_TEST=1 to run)",
+]

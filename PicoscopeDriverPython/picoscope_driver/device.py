@@ -110,6 +110,7 @@ class PicoscopeDevice:
         self._shot_number = 0
         self._status = "idle"
         self._last_traces: dict[str, Trace] = {}
+        self._last_save_path = ""
 
         self._variables: dict[str, tuple[Getter, Setter]] = {}
         self._register_variables()
@@ -175,6 +176,7 @@ class PicoscopeDevice:
         )
         np.savetxt(path, data, delimiter=",", header=",".join(columns), comments="")
         logger.info("%s: saved shot %d to %s", self.device_name, self._shot_number, path)
+        self._last_save_path = str(path)
         return path
 
     def close(self) -> None:
@@ -255,6 +257,20 @@ class PicoscopeDevice:
             return None
 
         self._variables["Acquire"] = (lambda: self._shot_number, do_acquire)
+
+        def do_save(value: Any) -> "str | None":
+            if not _validate_bool(value):
+                return None
+            try:
+                path = self.save()
+            except OSError as exc:
+                return str(exc)
+            if path is None:
+                return "no acquired data to save; call Acquire first"
+            return None
+
+        self._variables["Save"] = (lambda: self._last_save_path, do_save)
+        self._variables["Last Save Path"] = (lambda: self._last_save_path, self._reject_readonly)
 
         self._bind(
             "Timebase",

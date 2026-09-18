@@ -4,7 +4,7 @@ from picoscope_driver.device import PicoscopeDevice
 from picoscope_driver.geecs_server import GeecsDeviceServer
 from picoscope_driver.hardware.mock import MockPicoscopeHardware
 
-from .geecs_test_client import GeecsTestClient
+from .geecs_test_client import GeecsCommandError, GeecsTestClient
 
 
 @pytest.fixture
@@ -37,13 +37,13 @@ async def test_set_and_get_channel_enabled(running_device) -> None:
 
 async def test_set_rejects_unknown_variable(running_device) -> None:
     _device, _server, client = running_device
-    with pytest.raises(AssertionError, match="unknown variable"):
+    with pytest.raises(GeecsCommandError, match="unknown variable"):
         await client.set("NotARealVariable", 1)
 
 
 async def test_set_rejects_bad_voltage_range(running_device) -> None:
     _device, _server, client = running_device
-    with pytest.raises(AssertionError):
+    with pytest.raises(GeecsCommandError):
         await client.set("ChannelA Range (V)", 3.7)
 
 
@@ -54,6 +54,15 @@ async def test_acquire_increments_shotnumber(running_device) -> None:
     await client.set("Acquire", 1)
     after = await client.get("shotnumber")
     assert after == before + 1
+
+
+async def test_save_over_protocol(running_device) -> None:
+    _device, _server, client = running_device
+    await client.set("ChannelA Enabled", 1)
+    await client.set("Acquire", 1)
+    await client.set("Save", 1)
+    saved_path = await client.get("Last Save Path")
+    assert saved_path
 
 
 async def test_subscription_push(running_device) -> None:
