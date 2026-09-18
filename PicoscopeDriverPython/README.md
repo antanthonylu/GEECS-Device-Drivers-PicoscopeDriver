@@ -5,7 +5,8 @@ replacing the LabVIEW `PicoscopeV2`/`picoscope` drivers elsewhere in this
 repository for that hardware. It speaks the same UDP/TCP wire protocol
 Master Control uses to talk to a LabVIEW `BaseDriver`-derived device, so
 (once registered in the lab's GEECS device database — see
-`docs/PROTOCOL.md`) Master Control can drive it like any other device.
+`docs/MASTER_CONTROL_INTEGRATION.md`) Master Control can drive it like any
+other device.
 
 ## Status
 
@@ -15,9 +16,13 @@ validated against real PicoScope 3000A hardware or a live Master Control
 instance.** See `docs/PROTOCOL.md` for exactly what is and is not confirmed.
 
 **Testing on real hardware:** see `LAB_QUICKSTART.md` for copy-paste,
-step-by-step instructions to run this on a lab computer with a PicoScope
-3000A attached, including two demo scripts that produce a plot of a real
-captured trace.
+step-by-step instructions (Windows/Remote Desktop-focused) to run this on
+a lab computer with a PicoScope 3000A attached, including two demo scripts
+that produce a plot of a real captured trace.
+
+**Wiring it up to a real Master Control:** see
+`docs/MASTER_CONTROL_INTEGRATION.md` for what that takes and what is/isn't
+confirmed to work.
 
 ## Layout
 
@@ -44,6 +49,7 @@ tests/
   test_hardware_ps3000a.py  opt-in: needs PICOSCOPE_HW_TEST=1 + real hardware
 docs/
   PROTOCOL.md          the wire protocol, and how it was determined
+  MASTER_CONTROL_INTEGRATION.md  what it takes to register this with a real Master Control
 LAB_QUICKSTART.md      step-by-step guide for testing on real hardware
 ```
 
