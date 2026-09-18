@@ -11,6 +11,8 @@ lets :mod:`picoscope_driver.hardware.mock` stand in during development.
 from __future__ import annotations
 
 import ctypes
+import os
+import sys
 import time
 
 import numpy as np
@@ -27,6 +29,43 @@ from .base import (
 _POLL_INTERVAL_S = 0.01
 
 
+def _prioritize_64bit_picosdk_on_path() -> None:
+    """Put the 64-bit PicoSDK's lib directory at the front of this process's PATH.
+
+    Some Windows machines end up with both the 64-bit PicoSDK (a standalone
+    install, under ``Program Files``) and an older 32-bit copy bundled with
+    the native PicoScope application (under ``Program Files (x86)``) on
+    ``PATH`` at once. ``ctypes.util.find_library`` — what PicoSDK's Python
+    wrapper uses — returns whichever comes first, which can be the 32-bit
+    one even under a 64-bit Python process. That produces a cryptic
+    ``WinError 193: %1 is not a valid Win32 application`` instead of a
+    clear "wrong architecture" message (observed on a real lab machine).
+
+    This only changes ``PATH`` for this Python process, not the system-wide
+    or user-wide environment variable, so it can't affect the native
+    PicoScope application or anything else on the machine.
+    """
+    if sys.platform != "win32":
+        return
+    program_files = os.environ.get("ProgramW6432") or os.environ.get(
+        "ProgramFiles", r"C:\Program Files"
+    )
+    lib_dir = os.path.join(program_files, "Pico Technology", "SDK", "lib")
+    if not os.path.isdir(lib_dir):
+        return
+    # PicoSDK's own find_library() re-scans os.environ["PATH"] at call time
+    # (it's a plain Python directory walk, not a delegated OS LoadLibrary
+    # search), so this ordering fix is what actually picks the right DLL.
+    os.environ["PATH"] = lib_dir + os.pathsep + os.environ.get("PATH", "")
+    # Belt-and-suspenders: also register it as a DLL search directory, in
+    # case ps3000a.dll has its own same-folder dependencies that Python
+    # 3.8+'s safe DLL loading would otherwise fail to resolve.
+    try:
+        os.add_dll_directory(lib_dir)
+    except (AttributeError, OSError):
+        pass
+
+
 class Ps3000aHardware(PicoscopeHardware):
     """Drives a real PicoScope 3000A unit through ``picosdk.ps3000a``."""
 
@@ -38,6 +77,7 @@ class Ps3000aHardware(PicoscopeHardware):
         self._channel_range_index: dict[str, int | None] = {}
 
     def open(self, serial: str | None = None) -> None:
+        _prioritize_64bit_picosdk_on_path()
         from picosdk.functions import assert_pico_ok
         from picosdk.ps3000a import ps3000a as ps
 

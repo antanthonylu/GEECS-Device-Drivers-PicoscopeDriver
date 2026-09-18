@@ -282,6 +282,7 @@ device database.
 | `git` not recognized right after installing Git for Windows | Stale `PATH` in an already-open PowerShell window. Close it, open a new one, retry. See step 1. |
 | `running scripts is disabled on this system` | PowerShell execution policy. See step 3's fix. |
 | `CannotFindPicoSDKError` | PicoSDK driver not installed / not on `PATH`. See step 4. |
+| `CannotOpenPicoSDKError: ... not compatible (check 32 vs 64-bit): [WinError 193] %1 is not a valid Win32 application` | A 32-bit and a 64-bit `ps3000a.dll` both exist on this machine (common when the native PicoScope app bundled an older 32-bit copy under `Program Files (x86)`, and a separate 64-bit PicoSDK install put one under `Program Files`), and the wrong one was found first. The driver auto-prefers `C:\Program Files\Pico Technology\SDK\lib` if it exists — if you still hit this, that means PicoSDK is installed somewhere non-standard; find the real 64-bit `ps3000a.dll` location and run `$env:PATH = "<that folder>;$env:PATH"` before retrying. |
 | Fails to open unit, no Python traceback about PicoSDK | Native PicoScope software still has it open. Close it and retry. |
 | Trace is a perfectly flat line at exactly 0 V (not just noisy) | Possible real problem — a live ADC essentially never reads bit-identical samples. Check the connection / channel enable state. |
 | `ModuleNotFoundError: No module named 'picosdk'` | Run `pip install -e ".[hardware]"` from inside `PicoscopeDriverPython\` with the venv active. |
