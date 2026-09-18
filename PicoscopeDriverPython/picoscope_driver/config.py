@@ -7,9 +7,13 @@ the real acquisition PC — only the config file differs.
 
 from __future__ import annotations
 
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:
+    import tomli as tomllib  # Python 3.10 backport (pip install tomli)
 
 
 @dataclass

@@ -36,14 +36,30 @@ python --version
 git --version
 ```
 
-- **`python` not found**, or a version older than 3.11: download the
-  installer from https://www.python.org/downloads/windows/ and run it.
-  **On the first install screen, check "Add python.exe to PATH"** before
-  clicking Install — this is the single most common thing people forget.
-  Close and reopen PowerShell afterward so it picks up the new `PATH`.
-- **`git` not found**: either install Git for Windows
-  (https://git-scm.com/download/win, default options are fine), or skip
-  straight to the "No git?" box in step 2 below.
+- **`python` not found**, or older than 3.10: download the installer from
+  https://www.python.org/downloads/windows/ and run it. **On the first
+  install screen, check "Add python.exe to PATH"** before clicking
+  Install — this is the single most common thing people forget. Close and
+  reopen PowerShell afterward so it picks up the new `PATH`. (3.10 is
+  fine — this driver doesn't need 3.11+, no need to install a second
+  Python version if 3.10 is already what's on this machine.)
+- **`git` not found right after installing Git for Windows`**: this is
+  almost always just a stale `PATH` in the PowerShell window you already
+  had open — **close this PowerShell window completely and open a new
+  one**, then `cd` back into wherever you were and retry `git --version`.
+  If it's still not found in a fresh window:
+  - Check whether **Git Bash** (a Start-menu app installed alongside Git
+    for Windows) can run `git --version` — if so, the installer put Git
+    on Git Bash's PATH but not PowerShell's. Easiest fix: just do all the
+    `git` commands below in Git Bash instead of PowerShell (everything
+    from step 2 onward can also run there); or re-run the Git for Windows
+    installer and, on the "Adjusting your PATH environment" screen,
+    choose **"Git from the command line and also from 3rd-party
+    software"**.
+  - If Git Bash doesn't have it either, the install may not have
+    finished — re-run the installer from gitforwindows.org.
+  - Either way, you can skip git entirely — see the "No git?" box in
+    step 2 below.
 
 ## 2. Get the code, without touching `master`
 
@@ -263,6 +279,7 @@ device database.
 
 | Symptom | Likely cause |
 | --- | --- |
+| `git` not recognized right after installing Git for Windows | Stale `PATH` in an already-open PowerShell window. Close it, open a new one, retry. See step 1. |
 | `running scripts is disabled on this system` | PowerShell execution policy. See step 3's fix. |
 | `CannotFindPicoSDKError` | PicoSDK driver not installed / not on `PATH`. See step 4. |
 | Fails to open unit, no Python traceback about PicoSDK | Native PicoScope software still has it open. Close it and retry. |
