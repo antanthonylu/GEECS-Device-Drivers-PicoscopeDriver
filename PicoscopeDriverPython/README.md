@@ -24,6 +24,9 @@ that produce a plot of a real captured trace.
 `docs/MASTER_CONTROL_INTEGRATION.md` for what that takes and what is/isn't
 confirmed to work.
 
+**Picking this up in a new session:** read `HANDOFF.md` first — it has
+the current state, what's in progress, and the immediate next step.
+
 ## Layout
 
 ```
